@@ -3,39 +3,57 @@ import QRCode
 import CoreGraphics
 
 struct ContentView: View {
+    @State private var qrImage: CGImage?
+    
     var body: some View {
         VStack(spacing: 16) {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-
-            if let cg = setupQRCode(for: "This is Content") {
-                // CGImage は非オプショナルで渡す。orientation も指定する
+            if let cg = qrImage {
                 Image(decorative: cg, scale: 1.0, orientation: .up)
-                    .interpolation(.none)    // QR をくっきり表示
+                    .interpolation(.none)
                     .antialiased(false)
                     .resizable()
                     .frame(width: 200, height: 200)
             } else {
-                Text("QR の生成に失敗しました")
+                Text("QR を生成中...")
                     .foregroundStyle(.secondary)
             }
-
-            Text("Hello, world!")
         }
         .padding()
+        .task {
+            let text = "https://x.com/Ktombow1110"
+            if let url = URL(string: "https://avatars.githubusercontent.com/u/70003919?v=4"),
+               let logo = await fetchCGImage(from: url) {
+                qrImage = setupQRCode(for: text, logoImage: logo)
+            } else {
+                qrImage = setupQRCode(for: text)
+            }
+        }
     }
 }
 
-func setupQRCode(for text: String) -> CGImage? {
-    // QRCode.Document(...) と cgImage(...) は throws なので try? で Optional に
-    guard
-        let doc = try? QRCode.Document(utf8String: text),
-        let cgImage = try? doc.cgImage(dimension: 400)
-    else {
-        return nil
+/// QRコード生成
+func setupQRCode(for text: String, logoImage: CGImage? = nil) -> CGImage? {
+    guard let doc = try? QRCode.Document(utf8String: text) else { return nil }
+    doc.design.style.backgroundFractionalCornerRadius = 3.0
+    
+    if let logoImage {
+        doc.logoTemplate = QRCode.LogoTemplate.CircleCenter(image: logoImage)
     }
-    return cgImage
+    
+    return try? doc.cgImage(dimension: 400)
+}
+
+/// URLからCGImageを非同期取得
+func fetchCGImage(from url: URL) async -> CGImage? {
+    do {
+        let (data, _) = try await URLSession.shared.data(from: url)
+        if let uiImage = UIImage(data: data) {
+            return uiImage.cgImage
+        }
+    } catch {
+        print("画像取得失敗: \(error)")
+    }
+    return nil
 }
 
 #Preview {
