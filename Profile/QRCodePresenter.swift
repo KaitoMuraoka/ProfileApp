@@ -7,6 +7,7 @@ final class QRCodePresenter: ObservableObject {
     @Published var qrImage: CGImage?
     @Published var qrCodeUrlString: String?
     @Published var qrCodeImageUrlString: String?
+    @Published var showSheet: Bool = false
 }
 
 extension QRCodePresenter {
@@ -23,6 +24,7 @@ extension QRCodePresenter {
     
     func addView() {
         print("次の画面へモーダル遷移する")
+        showSheet.toggle()
     }
     
     /// QRコード生成

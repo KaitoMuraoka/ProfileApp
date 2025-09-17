@@ -16,9 +16,25 @@ struct QRCodeView: View {
         .shadow(color: .gray.opacity(0.7), radius: 5)
         .onAppear { presenter.viewDidLoad() }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem {
                 Button { presenter.addView() } label: {
                     Image(systemName: "info")
+                }
+            }
+        }
+        .sheet(isPresented: $presenter.showSheet) {
+            NavigationStack {
+                List {
+                    Text("リンク")
+                    Text("画像")
+                }
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(role: .confirm, action: { presenter.addView() })
+                    }
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button(role: .cancel, action: { presenter.addView() })
+                    }
                 }
             }
         }
