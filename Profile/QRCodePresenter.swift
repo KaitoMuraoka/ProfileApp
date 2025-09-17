@@ -5,20 +5,25 @@ import CoreGraphics
 
 final class QRCodePresenter: ObservableObject {
     @Published var qrImage: CGImage?
-    @Published var qrCodeUrlString = "https://x.com/Ktombow1110"
-    @Published var qrCodeImageUrlString = "https://avatars.githubusercontent.com/u/70003919?v=4"
+    @Published var qrCodeUrlString: String?
+    @Published var qrCodeImageUrlString: String?
 }
 
 extension QRCodePresenter {
     func viewDidLoad() {
         Task {
-            if let url = URL(string: qrCodeImageUrlString) {
+            if let qrCodeImageUrlString,
+               let qrCodeUrlString,
+               let url = URL(string: qrCodeImageUrlString) {
                 let logo = await fetchCGImage(from: url)
                 qrImage = setupQRCode(for: qrCodeUrlString, logoImage: logo)
             }
         }
     }
     
+    func addView() {
+        print("次の画面へモーダル遷移する")
+    }
     
     /// QRコード生成
     private func setupQRCode(for text: String, logoImage: CGImage? = nil) -> CGImage? {

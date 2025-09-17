@@ -6,17 +6,14 @@ struct QRCodeView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            VStack {
                 qrCode
-            }
-            .padding(.vertical, 1.618*50)
-            .padding(.horizontal, 50)
-            .background(.white)
-            .cornerRadius(8)
-            .clipped()
-            .shadow(color: .gray.opacity(0.7), radius: 5)
         }
-        .padding()
+        .padding(.vertical, 1.618*50)
+        .padding(.horizontal, 50)
+        .background(.white)
+        .cornerRadius(8)
+        .clipped()
+        .shadow(color: .gray.opacity(0.7), radius: 5)
         .onAppear { presenter.viewDidLoad() }
     }
     
