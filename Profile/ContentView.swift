@@ -1,21 +1,12 @@
-//
-//  ContentView.swift
-//  Profile
-//
-//  Created by KaitoMuraoka on 2025/09/17.
-//
-
 import SwiftUI
+import QRCode
+import CoreGraphics
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack {
+            QRCodeView(presenter: .init())
         }
-        .padding()
     }
 }
 
