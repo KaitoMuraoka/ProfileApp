@@ -6,7 +6,12 @@ struct QRCodeView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-                qrCode
+            qrCode
+                .contextMenu {
+                    Button(action: {presenter.openWebView()}) {
+                        Text("Webで開く")
+                    }
+                }
         }
         .padding(.vertical, 1.618*50)
         .padding(.horizontal, 50)

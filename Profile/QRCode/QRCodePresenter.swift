@@ -36,6 +36,10 @@ extension QRCodePresenter {
         showSheet = false
     }
     
+    func openWebView() {
+        // TODO: WebView で開く
+    }
+    
     /// QRコード生成
     private func setupQRCode(for text: String, logoImage: CGImage? = nil) -> CGImage? {
         guard let doc = try? QRCode.Document(utf8String: text) else { return nil }
