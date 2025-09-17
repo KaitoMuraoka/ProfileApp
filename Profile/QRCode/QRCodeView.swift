@@ -10,7 +10,7 @@ struct QRCodeView: View {
         }
         .padding(.vertical, 1.618*50)
         .padding(.horizontal, 50)
-        .background(.white)
+        .background() // TOOD: DarkMode対応
         .cornerRadius(8)
         .clipped()
         .shadow(color: .gray.opacity(0.7), radius: 5)
@@ -25,15 +25,15 @@ struct QRCodeView: View {
         .sheet(isPresented: $presenter.showSheet) {
             NavigationStack {
                 List {
-                    Text("リンク")
-                    Text("画像")
+                    TextField("QRコードのURL", text: $presenter.qrCodeUrlString)
+                    TextField("QRコードに表示する画像のURL", text: $presenter.qrCodeImageUrlString)
                 }
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .confirm, action: { presenter.addView() })
+                        Button(role: .confirm, action: { presenter.saveQRCode() })
                     }
                     ToolbarItem(placement: .topBarLeading) {
-                        Button(role: .cancel, action: { presenter.addView() })
+                        Button(role: .cancel, action: { presenter.cancelView() })
                     }
                 }
             }

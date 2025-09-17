@@ -3,28 +3,37 @@ import Combine
 import QRCode
 import CoreGraphics
 
-final class QRCodePresenter: ObservableObject {
+@MainActor final class QRCodePresenter: ObservableObject {
     @Published var qrImage: CGImage?
-    @Published var qrCodeUrlString: String?
-    @Published var qrCodeImageUrlString: String?
+    @Published var qrCodeUrlString: String = ""
+    @Published var qrCodeImageUrlString: String = ""
     @Published var showSheet: Bool = false
 }
 
 extension QRCodePresenter {
     func viewDidLoad() {
         Task {
-            if let qrCodeImageUrlString,
-               let qrCodeUrlString,
-               let url = URL(string: qrCodeImageUrlString) {
+            guard !qrCodeUrlString.isEmpty else { return }
+            if let url = URL(string: qrCodeImageUrlString) {
                 let logo = await fetchCGImage(from: url)
                 qrImage = setupQRCode(for: qrCodeUrlString, logoImage: logo)
+            } else {
+                qrImage = setupQRCode(for: qrCodeUrlString)
             }
         }
     }
     
     func addView() {
-        print("次の画面へモーダル遷移する")
-        showSheet.toggle()
+        showSheet = true
+    }
+    
+    func saveQRCode() {
+        showSheet = false
+        viewDidLoad()
+    }
+    
+    func cancelView() {
+        showSheet = false
     }
     
     /// QRコード生成
