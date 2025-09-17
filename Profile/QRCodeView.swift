@@ -15,6 +15,13 @@ struct QRCodeView: View {
         .clipped()
         .shadow(color: .gray.opacity(0.7), radius: 5)
         .onAppear { presenter.viewDidLoad() }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { presenter.addView() } label: {
+                    Image(systemName: "info")
+                }
+            }
+        }
     }
     
     @ViewBuilder
@@ -33,5 +40,7 @@ struct QRCodeView: View {
 }
 
 #Preview {
-    QRCodeView(presenter: .init())
+    NavigationStack { // NavigationStack で包むと Toolbar が有効に出る
+        QRCodeView(presenter: .init())
+    }
 }

@@ -4,7 +4,9 @@ import CoreGraphics
 
 struct ContentView: View {
     var body: some View {
-        QRCodeView(presenter: .init())
+        NavigationStack {
+            QRCodeView(presenter: .init())
+        }
     }
 }
 
