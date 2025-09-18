@@ -17,7 +17,7 @@ import SwiftData
 extension QRCodePresenter {
     func viewDidLoad() {
         Task {
-            setup()
+            fetchQRModel()
             guard !qrCodeUrlString.isEmpty else { return }
             if let url = URL(string: qrCodeImageUrlString) {
                 let logo = await fetchCGImage(from: url)
@@ -47,7 +47,7 @@ extension QRCodePresenter {
         // TODO: WebView で開く
     }
     
-    private func setup() {
+    private func fetchQRModel() {
         guard let qrCodeModel = qrCodeModels.first else { return }
         self.qrCodeUrlString = qrCodeModel.qrCodeUrlString
         self.qrCodeImageUrlString = qrCodeModel.qrCodeImageUrlString
