@@ -4,7 +4,7 @@ import SwiftData
 struct ContentView: View {
     var body: some View {
         NavigationStack {
-            QRCodeView(presenter: .init())
+            QRCodeView()
                 .modelContainer(for: QRCodeModel.self)
         }
     }
