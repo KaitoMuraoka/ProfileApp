@@ -9,6 +9,8 @@ import SwiftData
     @Published var qrCodeUrlString: String = ""
     @Published var qrCodeImageUrlString: String = ""
     @Published var showSheet: Bool = false
+    
+    private var currentModel: QRCodeModel?
 }
 
 extension QRCodePresenter {
@@ -34,12 +36,18 @@ extension QRCodePresenter {
     }
     
     func saveQRCode(context: ModelContext) {
-        let newModel = QRCodeModel(
-            qrCodeUrlString: qrCodeUrlString,
-            qrCodeImageUrlString: qrCodeImageUrlString
-        )
-        context.insert(newModel)
-        try? context.save() // 明示保存したい場合（必要に応じて）
+        if let model = currentModel {
+            model.qrCodeUrlString = qrCodeUrlString
+            model.qrCodeImageUrlString = qrCodeImageUrlString
+        } else {
+            let newModel = QRCodeModel(
+                qrCodeUrlString: qrCodeUrlString,
+                qrCodeImageUrlString: qrCodeImageUrlString
+            )
+            context.insert(newModel)
+            currentModel = newModel
+        }
+        try? context.save()
         Task {
             await updateQRCode()
             showSheet = false
@@ -57,9 +65,10 @@ extension QRCodePresenter {
     private func fetchQRModel(context: ModelContext) {
         do {
             let models = try context.fetch(FetchDescriptor<QRCodeModel>())
-            if let m = models.first {
-                qrCodeUrlString = m.qrCodeUrlString
-                qrCodeImageUrlString = m.qrCodeImageUrlString
+            if let model = models.first {
+                currentModel = model
+                qrCodeUrlString = model.qrCodeUrlString
+                qrCodeImageUrlString = model.qrCodeImageUrlString
             }
         } catch {
             print("Fetch failed: \(error)")
