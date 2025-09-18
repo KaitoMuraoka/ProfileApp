@@ -1,9 +1,11 @@
 import SwiftUI
 import Combine
+import SwiftData
 
 struct QRCodeView: View {
-    @ObservedObject var presenter: QRCodePresenter
-    
+    @Environment(\.modelContext) private var context
+    @StateObject private var presenter = QRCodePresenter()
+
     var body: some View {
         VStack(spacing: 16) {
             qrCode
@@ -19,7 +21,7 @@ struct QRCodeView: View {
         .cornerRadius(8)
         .clipped()
         .shadow(color: .gray.opacity(0.7), radius: 5)
-        .onAppear { presenter.viewDidLoad() }
+        .task { presenter.viewDidLoad(context: context) }
         .toolbar {
             ToolbarItem {
                 Button { presenter.addView() } label: {
@@ -35,7 +37,7 @@ struct QRCodeView: View {
                 }
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .confirm, action: { presenter.saveQRCode() })
+                        Button(role: .confirm, action: { presenter.saveQRCode(context: context) })
                     }
                     ToolbarItem(placement: .topBarLeading) {
                         Button(role: .cancel, action: { presenter.cancelView() })
@@ -62,6 +64,7 @@ struct QRCodeView: View {
 
 #Preview {
     NavigationStack { // NavigationStack で包むと Toolbar が有効に出る
-        QRCodeView(presenter: .init())
+        QRCodeView()
+            .modelContainer(for: QRCodeModel.self, inMemory: true)
     }
 }

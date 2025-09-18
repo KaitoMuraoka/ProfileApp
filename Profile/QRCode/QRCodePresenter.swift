@@ -2,24 +2,22 @@ import SwiftUI
 import Combine
 import QRCode
 import CoreGraphics
+import SwiftData
 
 @MainActor final class QRCodePresenter: ObservableObject {
     @Published var qrImage: CGImage?
     @Published var qrCodeUrlString: String = ""
     @Published var qrCodeImageUrlString: String = ""
     @Published var showSheet: Bool = false
+    
+    private var currentModel: QRCodeModel?
 }
 
 extension QRCodePresenter {
-    func viewDidLoad() {
+    func viewDidLoad(context: ModelContext) {
         Task {
-            guard !qrCodeUrlString.isEmpty else { return }
-            if let url = URL(string: qrCodeImageUrlString) {
-                let logo = await fetchCGImage(from: url)
-                qrImage = setupQRCode(for: qrCodeUrlString, logoImage: logo)
-            } else {
-                qrImage = setupQRCode(for: qrCodeUrlString)
-            }
+            fetchQRModel(context: context)
+            await updateQRCode()
         }
     }
     
@@ -27,9 +25,33 @@ extension QRCodePresenter {
         showSheet = true
     }
     
-    func saveQRCode() {
-        showSheet = false
-        viewDidLoad()
+    private func updateQRCode() async {
+        guard !qrCodeUrlString.isEmpty else { return }
+        if let url = URL(string: qrCodeImageUrlString) {
+            let logo = await fetchCGImage(from: url)
+            qrImage = setupQRCode(for: qrCodeUrlString, logoImage: logo)
+        } else {
+            qrImage = setupQRCode(for: qrCodeUrlString)
+        }
+    }
+    
+    func saveQRCode(context: ModelContext) {
+        if let model = currentModel {
+            model.qrCodeUrlString = qrCodeUrlString
+            model.qrCodeImageUrlString = qrCodeImageUrlString
+        } else {
+            let newModel = QRCodeModel(
+                qrCodeUrlString: qrCodeUrlString,
+                qrCodeImageUrlString: qrCodeImageUrlString
+            )
+            context.insert(newModel)
+            currentModel = newModel
+        }
+        try? context.save()
+        Task {
+            await updateQRCode()
+            showSheet = false
+        }
     }
     
     func cancelView() {
@@ -38,6 +60,19 @@ extension QRCodePresenter {
     
     func openWebView() {
         // TODO: WebView で開く
+    }
+    
+    private func fetchQRModel(context: ModelContext) {
+        do {
+            let models = try context.fetch(FetchDescriptor<QRCodeModel>())
+            if let model = models.first {
+                currentModel = model
+                qrCodeUrlString = model.qrCodeUrlString
+                qrCodeImageUrlString = model.qrCodeImageUrlString
+            }
+        } catch {
+            print("Fetch failed: \(error)")
+        }
     }
     
     /// QRコード生成
